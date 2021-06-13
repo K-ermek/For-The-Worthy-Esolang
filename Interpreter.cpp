@@ -380,6 +380,116 @@ namespace function_handlers {
 			while (!run.empty()) { run.pop(); }
 		}
 	}
+	void assignment_function_handler() {
+		const string name = code.substr(It, 8);
+		It += 8;
+		value_type vt = NOT_FOUND;
+		for (int a = 0; a < data_bool.size(); a++) {
+			if (data_bool[a].first == name) {
+				vt = BOOL;
+				goto name_found;
+			}
+		}
+		for (int a = 0; a < data_int.size(); a++) {
+			if (data_int[a].first == name) {
+				vt = INT;
+				goto name_found;
+			}
+		}
+		for (int a = 0; a < data_char.size(); a++) {
+			if (data_char[a].first == name) {
+				vt = CHAR;
+				goto name_found;
+			}
+		}
+		name_found:
+		if (vt == NOT_FOUND) {
+			if (run.top() == 1) {
+				cout << "ERROR 1; undeclared variable";
+			}
+		}
+		else if (vt == BOOL && run.top() == 1 && goto_function < 0) {
+			const string value = code.substr(It, 1);
+			string in;
+			It++;
+			if (value == "1") {
+				in = code.substr(It, 1);
+				It++;
+				for (int a = 0; a < data_bool.size(); a++) {
+					if (data_bool[a].first == name) {
+						if (in == "1") {
+							data_bool[a].second = 1;
+						}
+						else {
+							data_bool[a].second = 0;
+						}
+						break;
+					}
+				}
+			}
+			else {
+				const int result = exp_handler();
+				for (int a = 0; a < data_bool.size(); a++) {
+					if (data_bool[a].first == name) {
+						if (result) {
+							data_bool[a].second = 1;
+						}
+						else {
+							data_bool[a].second = 0;
+						}
+						break;
+					}
+				}
+			}
+			
+		}
+		else if (vt == CHAR && run.top() == 1 && goto_function < 0) {
+			const string value = code.substr(It, 1);
+			It++;
+			if (value == "1") {
+				const string in = code.substr(It, 8);
+				It += 8;
+				for (int a = 0; a < data_char.size(); a++) {
+					if (data_char[a].first == name) {
+						data_char[a].second = (char)util::bin_to_dec(in);
+						break;
+					}
+				}
+			}
+			else {
+				const int result = exp_handler();
+				for (int a = 0; a < data_char.size(); a++) {
+					if (data_char[a].first == name) {
+						data_char[a].second = (char)result;
+						break;
+					}
+				}
+			}
+		}
+		else if (run.top() == 1 && goto_function < 0) {
+			const string value = code.substr(It, 1);
+			It++;
+			if (value == "1") {
+				const string in = code.substr(It, 17);
+				It += 17;
+				for (int a = 0; a < data_int.size(); a++) {
+					if (data_int[a].first == name) {
+						data_int[a].second = (in[0] == '1' ? -1 : 1)*util::bin_to_dec(in.substr(1, 16));
+						break;
+					}
+				}
+			}
+			else {
+				const int result = exp_handler();
+				for (int a = 0; a < data_int.size(); a++) {
+					if (data_int[a].first == name) {
+						data_int[a].second = result;
+						break;
+					}
+				}
+			}
+		}
+	}
 	void function_handler() {
 		const string function = code.substr(It, 4);
 		It += 4;
@@ -411,6 +521,9 @@ namespace function_handlers {
 		}
 		else if (function == "0111") {
 			goto_function_handler();
+		}
+		else if (function == "1000") {
+			assignment_function_handler();
 		}
 		//util::mem_state();//Debug for memory state of user declared variables
 	}
