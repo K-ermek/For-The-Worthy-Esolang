@@ -9,7 +9,7 @@ stack <bool> run;
 int It, function_counter=0, goto_function=-1;
 string code;
 vector <pair<string, bool>> data_bool;
-vector <pair<string, int>> data_int;
+vector <pair<string, long long int>> data_int;
 vector <pair<string, char>> data_char;
 const enum value_type {
 	CHAR,INT,BOOL,NOT_FOUND
